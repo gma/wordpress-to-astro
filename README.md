@@ -1,67 +1,30 @@
-Python Project Template
-=======================
+WordPress to Astro
+==================
 
-You can use this repository as a template when creating a new repository on GitHub, to get my preferred setup for a Python project.
+This is a script that I wrote to convert the XML exported from WordPress into a new copy of the web site, running on [Astro].
 
-After creating the new project, there are a few things you'll need to configure.
+I've only used it to convert a blog site to Astro, so the focus is on:
 
-## Rename the main package
+- converting the text of posts exported from WordPress into Markdown files in an Astro site, and 
+- downloading any images used within those posts, preparing them for use in Astro
 
-You'll need to rename the package from "mylib" to something sensible:
+## Install
 
-```sh
-git mv mylib newname
-sed -i'' -e 's/mylib/newname/' tests/* .projections.json
-```
-
-## Choosing the Python version
-
-The version of Python that your project uses is needed by the GitHub Action that runs the tests, and perhaps by your local Python installation tool.
-
-You can create it like this:
+You'll need Python 3.10 or above installed. Then you can get the script running by entering the following commands:
 
 ```sh
-echo 3.11.3 > .python-version  # 3.11.3 is just an example
+python3 -m venv .venv   # creates a virtual environment
+activate                # enables the virtual environment
 ```
 
-## Reviewing the license
-
-The open source MIT license is used by default (see the `LICENSE` file).
-[Is it appropriate](https://choosealicense.com/) for this project?
-
-If it is, don't forget to set the year and the name of the copyright holder:
-
-```sh
-sed -i'' -e "s,<YEAR>,$(date +%Y)," LICENSE
-FULL_NAME="$(getent passwd $USER | cut -d : -f 5 | cut -d , -f 1)"
-sed -i'' -e "s,<COPYRIGHT HOLDER>,$FULL_NAME," LICENSE
-```
-
-## Run the tests locally
-
-You need to get everything installed, and that first test running. Start by creating a virtual environment:
-
-```sh
-python3 -m venv .venv
-activate
-```
-
-Now we can install our development tools:
+Now we can upgrade and install our dependencies:
 
 ```sh
 pip install --upgrade pip
 pip install pip-tools
-pip-compile dev-requirements.in
-pip-sync dev-requirements.txt
-```
-
-Once you've got non-development dependencies you can specify them in `requirements.in`, running these commands to install them alongside your development dependencies:
-
-```sh
 pip-compile requirements.in
+pip-compile dev-requirements.in
 pip-sync requirements.txt dev-requirements.txt
 ```
 
-## Update the README
-
-Now delete all the docs that you've just followed, and write something suitable for your new project!
+[Astro]: https://astro.build
