@@ -1,7 +1,7 @@
 {
   "wpsite/*.py": {
     "type": "python",
-    "alternate": "tests/{dirname}/test_{basename}.py"
+    "alternate": "tests/test_{basename}.py"
   },
   "tests/**/test_*.py": {
     "type": "test",
