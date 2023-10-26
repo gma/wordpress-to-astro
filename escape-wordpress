@@ -1,0 +1,40 @@
+#!/usr/bin/env python
+
+
+import argparse
+import pathlib
+
+import wpsite
+
+
+def main(xml_file: pathlib.Path, content_dir: pathlib.Path) -> None:
+    wpsite.convert_to_markdown(xml_file, content_dir)
+
+
+def existing_path(arg: str) -> pathlib.Path:
+    path = pathlib.Path(arg)
+    if not path.exists():
+        raise argparse.ArgumentTypeError(f'{path} not found')
+    return path
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description='Converts WordPress site for use with Astro'
+    )
+    parser.add_argument(
+        'xml_file',
+        metavar='xml-file',
+        type=existing_path,
+        help='path to XML file exported from WordPress',
+    )
+    parser.add_argument(
+        'content_path',
+        metavar='content-path',
+        type=pathlib.Path,
+        help='path to directory containing converted Markdown',
+    )
+
+    args = parser.parse_args()
+
+    main(args.xml_file, args.content_path)
