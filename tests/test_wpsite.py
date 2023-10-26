@@ -19,7 +19,6 @@ def test_convert_creates_content_dir(
     assert content_dir.is_dir()
 
 
-@pytest.mark.skip('pending')
 def test_convert_creates_files_for_posts(
     xml_file: Path, content_dir: Path
 ) -> None:
