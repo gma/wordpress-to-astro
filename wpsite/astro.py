@@ -8,4 +8,10 @@ def create_page(content_dir: Path, post: Page) -> None:
 
     filename = (content_dir / post.slug).with_suffix('.md')
 
-    filename.touch(exist_ok=False)
+    with filename.open('w') as file:
+        file.write(
+            f"""---
+title: {post.title}
+---
+"""
+        )
