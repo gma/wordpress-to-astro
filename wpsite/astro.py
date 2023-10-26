@@ -12,6 +12,7 @@ def create_page(content_dir: Path, post: Page) -> None:
         file.write(
             f"""---
 title: {post.title}
+pubDate: {post.pubDate}
 ---
 """
         )

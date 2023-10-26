@@ -23,4 +23,5 @@ def posts(source: io.TextIOBase) -> typing.Generator[Page, None, None]:
                     yield Page(
                         title=tag_text(element, 'title'),
                         slug=tag_text(element, 'wp:post_name'),
+                        pubDate=tag_text(element, 'wp:post_date_gmt'),
                     )

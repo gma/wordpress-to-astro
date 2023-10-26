@@ -5,3 +5,4 @@ import dataclasses
 class Page:
     title: str
     slug: str
+    pubDate: str

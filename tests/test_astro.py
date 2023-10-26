@@ -8,7 +8,7 @@ from .context import page
 
 @pytest.fixture
 def post() -> page.Page:
-    return page.Page(title='Title', slug='slug')
+    return page.Page(title='Title', slug='slug', pubDate='2023-10-24 15:25:27')
 
 
 def test_markdown_files_are_created(tmp_path: Path, post: page.Page) -> None:
