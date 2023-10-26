@@ -1,13 +1,23 @@
 import io
 
-from pathlib import Path
-
 from .context import wp
+from .context import rss_doc
 
 
-def test_iterates_over_published_posts(xml_file: Path) -> None:
-    source = io.StringIO(xml_file.open().read())
+post_data = """
+<item>
+  <title><![CDATA[Post title]]></title>
+  <pubDate>Tue, 24 Oct 2023 15:25:27 +0000</pubDate>
+  <wp:post_name>post-name</wp:post_name>
+  <wp:post_type>post</wp:post_type>
+  <wp:status>publish</wp:status>
+</item>
+"""
+
+
+def test_iterates_over_published_posts() -> None:
+    source = io.StringIO(rss_doc(post_data))
 
     post = next(wp.posts(source))
 
-    assert post.title == 'The Art of Connection'
+    assert post.title == 'Post title'
