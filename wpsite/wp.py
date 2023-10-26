@@ -20,4 +20,7 @@ def posts(source: io.TextIOBase) -> typing.Generator[Page, None, None]:
         if element.tag == 'item':
             if tag_text(element, 'wp:post_type') == 'post':
                 if tag_text(element, 'wp:status') == 'publish':
-                    yield Page(title=tag_text(element, 'title'))
+                    yield Page(
+                        title=tag_text(element, 'title'),
+                        slug=tag_text(element, 'wp:post_name'),
+                    )

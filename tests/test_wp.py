@@ -21,3 +21,11 @@ def test_iterates_over_published_posts() -> None:
     post = next(wp.posts(source))
 
     assert post.title == 'Post title'
+
+
+def test_post_knows_its_name() -> None:
+    source = io.StringIO(rss_doc(post_data))
+
+    post = next(wp.posts(source))
+
+    assert post.slug == 'post-name'
