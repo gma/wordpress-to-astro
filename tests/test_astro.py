@@ -38,7 +38,16 @@ def test_yaml_frontmatter_is_included(tmp_path: Path, post: page.Page) -> None:
 
     text = file_contents(content_dir, post)
     assert '---\n' in text
-    assert f'title: {post.title}' in text
+    assert f'title: "{post.title}"' in text
+
+
+def test_yaml_syntax_is_escaped(tmp_path: Path, post: page.Page) -> None:
+    content_dir = tmp_path / 'content'
+    post.title = '"A quote"'
+
+    astro.create_page(content_dir, post)
+
+    assert 'title: "\\"A quote\\""' in file_contents(content_dir, post)
 
 
 def test_post_content_is_included(tmp_path: Path, post: page.Page) -> None:
