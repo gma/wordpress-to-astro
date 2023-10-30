@@ -12,8 +12,13 @@ post_data = """
   <wp:post_name>post-name</wp:post_name>
   <wp:post_type>post</wp:post_type>
   <wp:status>publish</wp:status>
-  <content:encoded><![CDATA[<!-- wp:paragraph -->
-<p>This is a sample post.</p>
+  <content:encoded><![CDATA[
+<span style="font-weight:400;">Example from an early sample post.</span>
+
+<img class="alignnone size-full wp-image-1234" src="https://sitename.files.wordpress.com/2000/01/img_20000101_100000.jpg" alt="Alt text" width="4160" height="3120" />Paragraph content follows immediately!
+
+<!-- wp:paragraph -->
+<p>Example from later sample post.</p>
 <!-- /wp:paragraph -->]]></content:encoded>
 </item>
 """
@@ -40,4 +45,5 @@ def test_post_knows_its_html_content() -> None:
 
     post = next(wp.posts(source))
 
-    assert '<p>This is a sample post.</p>' in post.content
+    assert 'Example from an early sample post.' in post.content
+    assert 'Example from later sample post.' in post.content
