@@ -3,21 +3,27 @@ from pathlib import Path
 from .page import Page
 
 
-def escape_quotes(text: str) -> str:
-    return '"' + text.replace('"', '\\"') + '"'
+class PostDirectory:
+    def __init__(self, content_dir: Path, post: Page) -> None:
+        self.content_dir = content_dir
+        self.post = post
 
+    def escape_quotes(self, text: str) -> str:
+        return '"' + text.replace('"', '\\"') + '"'
 
-def create_page(content_dir: Path, post: Page) -> None:
-    content_dir.mkdir(exist_ok=True, parents=True)
+    @property
+    def filename(self) -> Path:
+        return (self.content_dir / self.post.slug).with_suffix('.md')
 
-    filename = (content_dir / post.slug).with_suffix('.md')
+    def create_markdown(self) -> None:
+        self.content_dir.mkdir(exist_ok=True, parents=True)
 
-    with filename.open('w') as file:
-        file.write(
-            f"""---
-title: {escape_quotes(post.title)}
-pubDate: {post.pubDate}
+        with self.filename.open('w') as file:
+            file.write(
+                f"""---
+title: {self.escape_quotes(self.post.title)}
+pubDate: {self.post.pubDate}
 ---
-{post.content}
+{self.post.content}
 """
-        )
+            )

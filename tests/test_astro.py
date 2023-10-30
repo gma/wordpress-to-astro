@@ -19,7 +19,8 @@ def post() -> page.Page:
 def test_markdown_files_are_created(tmp_path: Path, post: page.Page) -> None:
     content_dir = tmp_path / 'content'
 
-    astro.create_page(content_dir, post)
+    post_dir = astro.PostDirectory(content_dir, post)
+    post_dir.create_markdown()
 
     filename = (content_dir / post.slug).with_suffix('.md')
     assert filename.is_file()
@@ -34,7 +35,8 @@ def file_contents(dir: Path, page: page.Page) -> str:
 def test_yaml_frontmatter_is_included(tmp_path: Path, post: page.Page) -> None:
     content_dir = tmp_path / 'content'
 
-    astro.create_page(content_dir, post)
+    post_dir = astro.PostDirectory(content_dir, post)
+    post_dir.create_markdown()
 
     text = file_contents(content_dir, post)
     assert '---\n' in text
@@ -45,7 +47,8 @@ def test_yaml_syntax_is_escaped(tmp_path: Path, post: page.Page) -> None:
     content_dir = tmp_path / 'content'
     post.title = '"A quote"'
 
-    astro.create_page(content_dir, post)
+    post_dir = astro.PostDirectory(content_dir, post)
+    post_dir.create_markdown()
 
     assert 'title: "\\"A quote\\""' in file_contents(content_dir, post)
 
@@ -53,7 +56,8 @@ def test_yaml_syntax_is_escaped(tmp_path: Path, post: page.Page) -> None:
 def test_post_content_is_included(tmp_path: Path, post: page.Page) -> None:
     content_dir = tmp_path / 'content'
 
-    astro.create_page(content_dir, post)
+    post_dir = astro.PostDirectory(content_dir, post)
+    post_dir.create_markdown()
 
     text = file_contents(content_dir, post)
     assert 'The post' in text
