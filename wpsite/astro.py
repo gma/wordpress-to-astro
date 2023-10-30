@@ -14,5 +14,6 @@ def create_page(content_dir: Path, post: Page) -> None:
 title: {post.title}
 pubDate: {post.pubDate}
 ---
+{post.content}
 """
         )
