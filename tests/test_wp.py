@@ -12,6 +12,9 @@ post_data = """
   <wp:post_name>post-name</wp:post_name>
   <wp:post_type>post</wp:post_type>
   <wp:status>publish</wp:status>
+  <category domain="post_tag" nicename="tag-1"><![CDATA[tag 1]]></category>
+  <category domain="post_tag" nicename="tag-2"><![CDATA[tag 2]]></category>
+  <category domain="category" nicename="uncategorized"><![CDATA[Uncategorized]]></category>
   <content:encoded><![CDATA[
 <span style="font-weight:400;">Example from an early sample post.</span>
 
@@ -38,6 +41,14 @@ def test_post_knows_its_name() -> None:
     post = next(wp.posts(source))
 
     assert post.slug == 'post-name'
+
+
+def test_post_knows_its_tags() -> None:
+    source = io.StringIO(rss_doc(post_data))
+
+    post = next(wp.posts(source))
+
+    assert post.tags == ['tag-1', 'tag-2']
 
 
 def test_post_knows_its_html_content() -> None:

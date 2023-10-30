@@ -1,6 +1,7 @@
 import io
-import typing
-import xml.etree.ElementTree
+import xml.etree.ElementTree as ElementTree
+
+from typing import Generator
 
 from .page import Page
 
@@ -11,25 +12,36 @@ namespaces = {
 }
 
 
-def tag_text(element: xml.etree.ElementTree.Element, tag: str) -> str:
+def text_of(element: ElementTree.Element, tag: str) -> str:
     child = element.find(tag, namespaces)
     if child is not None:
         return '' if child.text is None else child.text
     raise ValueError(f"Couldn't find {tag} beneath {element.tag}")
 
 
-def parse_post(element: xml.etree.ElementTree.Element) -> dict:
+def parse_tags(element: ElementTree.Element) -> list[str]:
+    path = 'category[@domain="post_tag"]'
+
+    def tags(element: ElementTree.Element) -> Generator[str, None, None]:
+        for child in element.iterfind(path, namespaces):
+            yield child.attrib['nicename']
+
+    return list(tags(element))
+
+
+def parse_post(element: ElementTree.Element) -> dict:
     return {
-        'title': tag_text(element, 'title'),
-        'slug': tag_text(element, 'wp:post_name'),
-        'pubDate': tag_text(element, 'wp:post_date_gmt'),
-        'content': tag_text(element, 'content:encoded'),
+        'title': text_of(element, 'title'),
+        'slug': text_of(element, 'wp:post_name'),
+        'pubDate': text_of(element, 'wp:post_date_gmt'),
+        'tags': parse_tags(element),
+        'content': text_of(element, 'content:encoded'),
     }
 
 
-def posts(source: io.TextIOBase) -> typing.Generator[Page, None, None]:
-    for _, element in xml.etree.ElementTree.iterparse(source):
+def posts(source: io.TextIOBase) -> Generator[Page, None, None]:
+    for _, element in ElementTree.iterparse(source):
         if element.tag == 'item':
-            if tag_text(element, 'wp:post_type') == 'post':
-                if tag_text(element, 'wp:status') == 'publish':
+            if text_of(element, 'wp:post_type') == 'post':
+                if text_of(element, 'wp:status') == 'publish':
                     yield Page(**parse_post(element))
