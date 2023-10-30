@@ -1,10 +1,17 @@
 import io
 
-from .context import wp
+import pytest
+
 from .context import rss_doc
+from .context import wp
 
 
-post_data = """
+inline_image_id = '1234'
+
+
+@pytest.fixture
+def post_data() -> str:
+    return f"""
 <item>
   <title><![CDATA[Post title]]></title>
   <pubDate>Tue, 24 Oct 2023 15:25:27 +0000</pubDate>
@@ -18,7 +25,9 @@ post_data = """
   <content:encoded><![CDATA[
 <span style="font-weight:400;">Example from an early sample post.</span>
 
-<img class="alignnone size-full wp-image-1234" src="https://sitename.files.wordpress.com/2000/01/img_20000101_100000.jpg" alt="Alt text" width="4160" height="3120" />Paragraph content follows immediately!
+<img class="alignnone size-full wp-image-{inline_image_id}" src="https://sitename.files.wordpress.com/2000/01/img_20000101_100000.jpg" alt="Alt text" width="4160" height="3120" />Paragraph content follows immediately!
+
+<img src="https://wordpress.com/images/photo.jpg" />
 
 <!-- wp:paragraph -->
 <p>Example from later sample post.</p>
@@ -27,7 +36,7 @@ post_data = """
 """
 
 
-def test_iterates_over_published_posts() -> None:
+def test_iterates_over_published_posts(post_data: str) -> None:
     source = io.StringIO(rss_doc(post_data))
 
     post = next(wp.posts(source))
@@ -35,7 +44,7 @@ def test_iterates_over_published_posts() -> None:
     assert post.title == 'Post title'
 
 
-def test_post_knows_its_name() -> None:
+def test_post_knows_its_name(post_data: str) -> None:
     source = io.StringIO(rss_doc(post_data))
 
     post = next(wp.posts(source))
@@ -43,7 +52,7 @@ def test_post_knows_its_name() -> None:
     assert post.slug == 'post-name'
 
 
-def test_post_knows_its_tags() -> None:
+def test_post_knows_its_tags(post_data: str) -> None:
     source = io.StringIO(rss_doc(post_data))
 
     post = next(wp.posts(source))
@@ -51,10 +60,18 @@ def test_post_knows_its_tags() -> None:
     assert post.tags == ['tag-1', 'tag-2']
 
 
-def test_post_knows_its_html_content() -> None:
+def test_post_knows_its_html_content(post_data: str) -> None:
     source = io.StringIO(rss_doc(post_data))
 
     post = next(wp.posts(source))
 
     assert 'Example from an early sample post.' in post.content
     assert 'Example from later sample post.' in post.content
+
+
+def test_hosted_images_are_identified(post_data: str) -> None:
+    source = io.StringIO(rss_doc(post_data))
+
+    post = next(wp.posts(source))
+
+    assert post.attachment_ids == [inline_image_id]
