@@ -18,12 +18,16 @@ class PostDirectory:
     def create_markdown(self) -> None:
         self.content_dir.mkdir(exist_ok=True, parents=True)
 
-        with self.filename.open('w') as file:
-            file.write(
-                f"""---
+        text = f"""---
 title: {self.escape_quotes(self.post.title)}
 pubDate: {self.post.pubDate}
+"""
+        if self.post.tags:
+            text += '\n'.join(['tags:'] + [f'  - {t}' for t in self.post.tags])
+
+        text += f"""
 ---
 {self.post.content}
 """
-            )
+        with self.filename.open('w') as file:
+            file.write(text)
