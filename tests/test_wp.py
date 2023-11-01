@@ -5,6 +5,26 @@ import pytest
 from .context import rss_doc
 from .context import wp
 
+attachment_id = '123'
+attachment_url = 'https://sitename.files.wordpress.com/2023/10/image.jpg'
+
+
+@pytest.fixture
+def attachment_data() -> str:
+    return f"""
+<item>
+  <title><![CDATA[FILE_BASENAME]]></title>
+  <pubDate>Tue, 24 Oct 2023 15:25:20 +0000</pubDate>
+  <description/>
+  <wp:post_id>{attachment_id}</wp:post_id>
+  <wp:post_date_gmt>2023-10-24 15:25:20</wp:post_date_gmt>
+  <wp:post_name>file_basename</wp:post_name>
+  <wp:status>inherit</wp:status>
+  <wp:post_type>attachment</wp:post_type>
+  <wp:attachment_url>{attachment_url}</wp:attachment_url>
+</item>
+"""
+
 
 inline_image_id = '1234'
 gallery_image_ids = ['123', '456']
@@ -39,42 +59,51 @@ def post_data() -> str:
 """
 
 
-def test_iterates_over_published_posts(post_data: str) -> None:
-    source = io.StringIO(rss_doc(post_data))
+class TestAttachments:
+    def test_maps_id_to_url(self, attachment_data: str) -> None:
+        source = io.StringIO(rss_doc(attachment_data))
 
-    post = next(wp.posts(source))
+        attachments = wp.attachments_by_id(source)
 
-    assert post.title == 'Post title'
-
-
-def test_post_knows_its_name(post_data: str) -> None:
-    source = io.StringIO(rss_doc(post_data))
-
-    post = next(wp.posts(source))
-
-    assert post.slug == 'post-name'
+        assert attachment_id in attachments
+        assert attachments[attachment_id] == attachment_url
 
 
-def test_post_knows_its_tags(post_data: str) -> None:
-    source = io.StringIO(rss_doc(post_data))
+class TestPosts:
+    def test_iterates_over_published_posts(self, post_data: str) -> None:
+        source = io.StringIO(rss_doc(post_data))
 
-    post = next(wp.posts(source))
+        post = next(wp.posts(source))
 
-    assert post.tags == ['tag-1', 'tag-2']
+        assert post.title == 'Post title'
 
+    def test_post_knows_its_name(self, post_data: str) -> None:
+        source = io.StringIO(rss_doc(post_data))
 
-def test_post_knows_its_html_content(post_data: str) -> None:
-    source = io.StringIO(rss_doc(post_data))
+        post = next(wp.posts(source))
 
-    post = next(wp.posts(source))
+        assert post.slug == 'post-name'
 
-    assert 'Example from an early sample post.' in post.content
-    assert 'Example from later sample post.' in post.content
+    def test_post_knows_its_tags(self, post_data: str) -> None:
+        source = io.StringIO(rss_doc(post_data))
 
+        post = next(wp.posts(source))
 
-def test_hosted_images_are_identified(post_data: str) -> None:
-    source = io.StringIO(rss_doc(post_data))
+        assert post.tags == ['tag-1', 'tag-2']
 
-    post = next(wp.posts(source))
+    def test_post_knows_its_html_content(self, post_data: str) -> None:
+        source = io.StringIO(rss_doc(post_data))
 
-    assert post.attachment_ids == set([inline_image_id] + gallery_image_ids)
+        post = next(wp.posts(source))
+
+        assert 'Example from an early sample post.' in post.content
+        assert 'Example from later sample post.' in post.content
+
+    def test_hosted_images_are_identified(self, post_data: str) -> None:
+        source = io.StringIO(rss_doc(post_data))
+
+        post = next(wp.posts(source))
+
+        assert post.attachment_ids == set(
+            [inline_image_id] + gallery_image_ids
+        )

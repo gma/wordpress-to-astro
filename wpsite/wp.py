@@ -39,9 +39,26 @@ def parse_post(element: ElementTree.Element) -> dict:
     }
 
 
-def posts(source: io.TextIOBase) -> Generator[Page, None, None]:
+def items_of_type(
+    source: io.TextIOBase, post_type: str
+) -> Generator[ElementTree.Element, None, None]:
     for _, element in ElementTree.iterparse(source):
         if element.tag == 'item':
-            if text_of(element, 'wp:post_type') == 'post':
-                if text_of(element, 'wp:status') == 'publish':
-                    yield Page(**parse_post(element))
+            if text_of(element, 'wp:post_type') == post_type:
+                yield element
+
+
+def posts(source: io.TextIOBase) -> Generator[Page, None, None]:
+    source.seek(0)
+    for element in items_of_type(source, 'post'):
+        if text_of(element, 'wp:status') == 'publish':
+            yield Page(**parse_post(element))
+
+
+def attachments_by_id(source: io.TextIOBase) -> dict[str, str]:
+    source.seek(0)
+    urls = {}
+    for element in items_of_type(source, 'attachment'):
+        the_id = text_of(element, 'wp:post_id')
+        urls[the_id] = text_of(element, 'wp:attachment_url')
+    return urls

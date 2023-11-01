@@ -1,3 +1,5 @@
+import urllib.request
+
 from pathlib import Path
 
 from .page import Page
@@ -32,5 +34,5 @@ pubDate: {self.post.pubDate}
         with self.filename.open('w') as file:
             file.write(text)
 
-    def fetch_attachments(self) -> None:
+    def fetch_attachments(self, attachment_urls: dict[str, str]) -> None:
         ...
