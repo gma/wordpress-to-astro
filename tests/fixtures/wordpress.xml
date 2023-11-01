@@ -78,6 +78,17 @@
   </wp:postmeta>
 </item>
 <item>
+  <title><![CDATA[FILE_BASENAME]]></title>
+  <pubDate>Tue, 24 Oct 2023 15:25:20 +0000</pubDate>
+  <description/>
+  <wp:post_id>1234</wp:post_id>
+  <wp:post_date_gmt>2023-10-24 15:25:20</wp:post_date_gmt>
+  <wp:post_name>image.jpg</wp:post_name>
+  <wp:status>inherit</wp:status>
+  <wp:post_type>attachment</wp:post_type>
+  <wp:attachment_url>https://grahamashtondev.files.wordpress.com/2023/10/image.jpg</wp:attachment_url>
+</item>
+<item>
   <title><![CDATA[About]]></title>
   <link>https://grahamashtondev.wordpress.com/about/</link>
   <pubDate>Tue, 24 Oct 2023 15:25:28 +0000</pubDate>
