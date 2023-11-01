@@ -25,3 +25,13 @@ def test_creates_markdown(xml_file: Path, content_dir: Path) -> None:
 
     assert post_filename.exists()
     assert post_filename.is_file()
+
+
+@pytest.mark.skip('pending')
+def test_fetches_attachments(xml_file: Path, content_dir: Path) -> None:
+    post_slug = 'the-art-of-connection'
+    attachment_path = content_dir / post_slug / 'image00001.jpeg'
+
+    wpsite.convert_to_markdown(xml_file, content_dir)
+
+    assert attachment_path.exists(), f'{attachment_path} should exist'

@@ -31,3 +31,6 @@ pubDate: {self.post.pubDate}
 """
         with self.filename.open('w') as file:
             file.write(text)
+
+    def fetch_attachments(self) -> None:
+        ...
