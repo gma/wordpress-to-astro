@@ -6,12 +6,12 @@ import re
 class ContentParser(html.parser.HTMLParser):
     def __init__(self) -> None:
         super().__init__()
-        self.attachment_ids: list[str] = []
+        self.attachment_ids: set[str] = set()
 
     def _record_attachment_id(self, classes: str) -> None:
         for html_class in classes.split():
             if html_class.startswith('wp-image-'):
-                self.attachment_ids.append(html_class.rsplit('-', 1)[-1])
+                self.attachment_ids.add(html_class.rsplit('-', 1)[-1])
 
     def handle_starttag(
         self, tag: str, attrs: list[tuple[str, str | None]]
@@ -31,19 +31,21 @@ class Page:
     tags: list[str]
     content: str
 
-    def _inline_image_ids(self) -> list[str]:
+    @property
+    def inline_image_ids(self) -> set[str]:
         parser = ContentParser()
         parser.feed(self.content)
         parser.close()
-        return parser.attachment_ids
+        return set(parser.attachment_ids)
 
-    def _gallery_image_ids(self) -> list[str]:
-        attachment_ids = []
+    @property
+    def gallery_image_ids(self) -> set[str]:
+        attachment_ids = set()
         for id_list in re.findall(r'\[gallery ids="([0-9,]+)', self.content):
             for attachment_id in id_list.split(','):
-                attachment_ids.append(attachment_id)
+                attachment_ids.add(attachment_id)
         return attachment_ids
 
     @property
-    def attachment_ids(self) -> list[str]:
-        return self._inline_image_ids() + self._gallery_image_ids()
+    def attachment_ids(self) -> set[str]:
+        return self.inline_image_ids.union(self.gallery_image_ids)

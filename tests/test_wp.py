@@ -77,4 +77,4 @@ def test_hosted_images_are_identified(post_data: str) -> None:
 
     post = next(wp.posts(source))
 
-    assert post.attachment_ids == [inline_image_id] + gallery_image_ids
+    assert post.attachment_ids == set([inline_image_id] + gallery_image_ids)

@@ -11,7 +11,7 @@ def test_content_parser_records_ids_of_images_with_wp_image_class() -> None:
     parser.feed(content)
     parser.close()
 
-    assert parser.attachment_ids == [image_id]
+    assert parser.attachment_ids == set([image_id])
 
 
 def test_content_parser_finds_ids_of_gallery_images() -> None:
@@ -26,7 +26,7 @@ def test_content_parser_finds_ids_of_gallery_images() -> None:
 
     post = page.Page('Title', 'slug', '2023-10-30', [], content)
 
-    assert post.attachment_ids == [image_1, image_2, image_3]
+    assert post.attachment_ids == set([image_1, image_2, image_3])
 
 
 def test_page_can_list_hosted_attachment_ids() -> None:
@@ -37,4 +37,4 @@ def test_page_can_list_hosted_attachment_ids() -> None:
 
     post = page.Page('Title', 'slug', '2023-10-30', [], content)
 
-    assert post.attachment_ids == [image_id]
+    assert post.attachment_ids == set([image_id])
