@@ -15,10 +15,10 @@ class PostDirectory:
 
     @property
     def filename(self) -> Path:
-        return (self.content_dir / self.post.slug).with_suffix('.md')
+        return (self.content_dir / self.post.slug / 'index').with_suffix('.md')
 
     def create_markdown(self) -> None:
-        self.content_dir.mkdir(exist_ok=True, parents=True)
+        self.filename.parent.mkdir(exist_ok=True, parents=True)
 
         text = f"""---
 title: {self.escape_quotes(self.post.title)}

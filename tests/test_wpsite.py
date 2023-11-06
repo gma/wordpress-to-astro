@@ -38,7 +38,7 @@ def test_creates_content_dir(xml_file: Path, content_dir: Path) -> None:
 
 def test_creates_markdown(xml_file: Path, content_dir: Path) -> None:
     post_slug = 'the-art-of-connection'
-    post_filename = (content_dir / post_slug).with_suffix('.md')
+    post_filename = (content_dir / post_slug / 'index').with_suffix('.md')
 
     wpsite.convert_to_markdown(xml_file, content_dir)
 

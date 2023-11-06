@@ -29,12 +29,12 @@ def test_markdown_files_are_created(tmp_path: Path, post: page.Page) -> None:
     post_dir = astro.PostDirectory(content_dir, post)
     post_dir.create_markdown()
 
-    filename = (content_dir / post.slug).with_suffix('.md')
+    filename = (content_dir / post.slug / 'index').with_suffix('.md')
     assert filename.is_file()
 
 
 def file_contents(dir: Path, page: page.Page) -> str:
-    filename = (dir / page.slug).with_suffix('.md')
+    filename = (dir / page.slug / 'index').with_suffix('.md')
     with filename.open() as f:
         return f.read()
 
