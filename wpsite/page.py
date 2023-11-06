@@ -1,5 +1,6 @@
 import dataclasses
 import html.parser
+import re
 
 
 class ContentParser(html.parser.HTMLParser):
@@ -30,9 +31,19 @@ class Page:
     tags: list[str]
     content: str
 
-    @property
-    def attachment_ids(self) -> list[str]:
+    def _inline_image_ids(self) -> list[str]:
         parser = ContentParser()
         parser.feed(self.content)
         parser.close()
         return parser.attachment_ids
+
+    def _gallery_image_ids(self) -> list[str]:
+        attachment_ids = []
+        for id_list in re.findall(r'\[gallery ids="([0-9,]+)', self.content):
+            for attachment_id in id_list.split(','):
+                attachment_ids.append(attachment_id)
+        return attachment_ids
+
+    @property
+    def attachment_ids(self) -> list[str]:
+        return self._inline_image_ids() + self._gallery_image_ids()

@@ -7,6 +7,7 @@ from .context import wp
 
 
 inline_image_id = '1234'
+gallery_image_ids = ['123', '456']
 
 
 @pytest.fixture
@@ -28,6 +29,8 @@ def post_data() -> str:
 <img class="alignnone size-full wp-image-{inline_image_id}" src="https://sitename.files.wordpress.com/2000/01/img_20000101_100000.jpg" alt="Alt text" width="4160" height="3120" />Paragraph content follows immediately!
 
 <img src="https://wordpress.com/images/photo.jpg" />
+
+[gallery ids="{','.join(gallery_image_ids)}" type="rectangular"]
 
 <!-- wp:paragraph -->
 <p>Example from later sample post.</p>
@@ -74,4 +77,4 @@ def test_hosted_images_are_identified(post_data: str) -> None:
 
     post = next(wp.posts(source))
 
-    assert post.attachment_ids == [inline_image_id]
+    assert post.attachment_ids == [inline_image_id] + gallery_image_ids
