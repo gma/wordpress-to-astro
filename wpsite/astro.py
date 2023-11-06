@@ -1,3 +1,4 @@
+import logging
 import urllib.parse
 import urllib.request
 
@@ -41,10 +42,18 @@ pubDate: {self.post.pubDate}
 
     def fetch_attachments(self, urls: dict[str, str]) -> None:
         self.create_post_dir()
+        logging.info(f'Fetching attachments for {self.post.slug}')
         for attachment_id in self.post.attachment_ids:
-            url = urls[attachment_id]
-            response = urllib.request.urlopen(url)
-            data = response.read()
-            basename = PurePath(urllib.parse.urlparse(url).path).name
-            with open(self.path / basename, 'wb') as f:
-                f.write(data)
+            try:
+                url = urls[attachment_id]
+            except KeyError:
+                logging.warning(
+                    f'Attachment missing from export: {attachment_id}'
+                )
+            else:
+                logging.info(f'Downloading {url}')
+                response = urllib.request.urlopen(url)
+                data = response.read()
+                basename = PurePath(urllib.parse.urlparse(url).path).name
+                with open(self.path / basename, 'wb') as f:
+                    f.write(data)
