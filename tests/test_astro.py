@@ -1,3 +1,5 @@
+from unittest import mock
+
 from pathlib import Path
 
 import pytest
@@ -23,6 +25,24 @@ def tagged_post(post: page.Page) -> page.Page:
     return post
 
 
+photo_attachment_id = '123'
+
+
+@pytest.fixture
+def photo_post() -> page.Page:
+    return page.Page(
+        title='Title',
+        slug='slug',
+        pubDate='2023-10-24 15:25:27',
+        tags=[],
+        content=f"""
+Some text with attached image.
+
+<img class="wp-image-{photo_attachment_id}" src="...">
+""",
+    )
+
+
 def test_markdown_files_are_created(tmp_path: Path, post: page.Page) -> None:
     content_dir = tmp_path / 'content'
 
@@ -33,7 +53,7 @@ def test_markdown_files_are_created(tmp_path: Path, post: page.Page) -> None:
     assert filename.is_file()
 
 
-def file_contents(dir: Path, page: page.Page) -> str:
+def markdown_file_text(dir: Path, page: page.Page) -> str:
     filename = (dir / page.slug / 'index').with_suffix('.md')
     with filename.open() as f:
         return f.read()
@@ -45,7 +65,7 @@ def test_yaml_frontmatter_is_included(tmp_path: Path, post: page.Page) -> None:
     post_dir = astro.PostDirectory(content_dir, post)
     post_dir.create_markdown()
 
-    text = file_contents(content_dir, post)
+    text = markdown_file_text(content_dir, post)
     assert '---\n' in text
     assert f'title: "{post.title}"' in text
 
@@ -56,7 +76,7 @@ def test_tags_omitted_by_default(tmp_path: Path, post: page.Page) -> None:
     post_dir = astro.PostDirectory(content_dir, post)
     post_dir.create_markdown()
 
-    text = file_contents(content_dir, post)
+    text = markdown_file_text(content_dir, post)
     assert 'tags:' not in text
 
 
@@ -66,7 +86,7 @@ def test_tags_listed_when_set(tmp_path: Path, tagged_post: page.Page) -> None:
     post_dir = astro.PostDirectory(content_dir, tagged_post)
     post_dir.create_markdown()
 
-    text = file_contents(content_dir, tagged_post)
+    text = markdown_file_text(content_dir, tagged_post)
     tag_yaml = """tags:
   - a-tag
   - another-tag"""
@@ -80,7 +100,7 @@ def test_yaml_syntax_is_escaped(tmp_path: Path, post: page.Page) -> None:
     post_dir = astro.PostDirectory(content_dir, post)
     post_dir.create_markdown()
 
-    assert 'title: "\\"A quote\\""' in file_contents(content_dir, post)
+    assert 'title: "\\"A quote\\""' in markdown_file_text(content_dir, post)
 
 
 def test_post_content_is_included(tmp_path: Path, post: page.Page) -> None:
@@ -89,5 +109,24 @@ def test_post_content_is_included(tmp_path: Path, post: page.Page) -> None:
     post_dir = astro.PostDirectory(content_dir, post)
     post_dir.create_markdown()
 
-    text = file_contents(content_dir, post)
+    text = markdown_file_text(content_dir, post)
     assert 'The post' in text
+
+
+@mock.patch.object(astro.urllib.request, 'urlopen', autospec=True)
+def test_attachments_fetched(
+    mock_urlopen: mock.MagicMock, tmp_path: Path, photo_post: page.Page
+) -> None:
+    content_dir = tmp_path / 'content'
+    post_dir = astro.PostDirectory(content_dir, photo_post)
+
+    photo_bytes = b'some pixels'
+    mock_urlopen.return_value.read.return_value = photo_bytes
+
+    photo_filename = 'image.jpg'
+    url = f'https://sitename.files.wordpress.com/{photo_filename}'
+
+    post_dir.fetch_attachments({photo_attachment_id: url})
+
+    mock_urlopen.assert_called_with(url)
+    assert (post_dir.path / photo_filename).read_bytes() == photo_bytes

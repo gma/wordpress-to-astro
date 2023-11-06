@@ -1,6 +1,7 @@
+import urllib.parse
 import urllib.request
 
-from pathlib import Path
+from pathlib import Path, PurePath
 
 from .page import Page
 
@@ -9,16 +10,20 @@ class PostDirectory:
     def __init__(self, content_dir: Path, post: Page) -> None:
         self.content_dir = content_dir
         self.post = post
+        self.path = self.content_dir / post.slug
 
     def escape_quotes(self, text: str) -> str:
         return '"' + text.replace('"', '\\"') + '"'
 
     @property
     def filename(self) -> Path:
-        return (self.content_dir / self.post.slug / 'index').with_suffix('.md')
+        return (self.path / 'index').with_suffix('.md')
+
+    def create_post_dir(self) -> None:
+        self.filename.parent.mkdir(exist_ok=True, parents=True)
 
     def create_markdown(self) -> None:
-        self.filename.parent.mkdir(exist_ok=True, parents=True)
+        self.create_post_dir()
 
         text = f"""---
 title: {self.escape_quotes(self.post.title)}
@@ -34,5 +39,12 @@ pubDate: {self.post.pubDate}
         with self.filename.open('w') as file:
             file.write(text)
 
-    def fetch_attachments(self, attachment_urls: dict[str, str]) -> None:
-        ...
+    def fetch_attachments(self, urls: dict[str, str]) -> None:
+        self.create_post_dir()
+        for attachment_id in self.post.attachment_ids:
+            url = urls[attachment_id]
+            response = urllib.request.urlopen(url)
+            data = response.read()
+            basename = PurePath(urllib.parse.urlparse(url).path).name
+            with open(self.path / basename, 'wb') as f:
+                f.write(data)
