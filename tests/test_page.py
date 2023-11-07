@@ -28,7 +28,7 @@ class TestPage:
 """
 
         post = page.Page('Title', 'slug', '2023-10-30', [], content)
-        markdown = post.markdown()
+        markdown = post.markdown
 
         assert 'wp:paragraph' not in markdown
         assert '\n\nThis is an example' in markdown
@@ -43,17 +43,3 @@ class TestPage:
         post = page.Page('Title', 'slug', '2023-10-30', [], content)
 
         assert post.attachment_ids == set([image_id])
-
-    def test_finds_ids_of_gallery_images(self) -> None:
-        image_1 = '123'
-        image_2 = '456'
-        image_3 = '789'
-        content = f"""
-[gallery ids="{image_1}" type="rectangular"]
-
-[gallery ids="{image_2},{image_3}" type="rectangular"]
-"""
-
-        post = page.Page('Title', 'slug', '2023-10-30', [], content)
-
-        assert post.attachment_ids == set([image_1, image_2, image_3])

@@ -102,7 +102,12 @@ class TestPosts:
     def test_hosted_images_are_identified(self, post_data: str) -> None:
         source = io.StringIO(rss_doc(post_data))
 
-        post = next(wp.posts(source))
+        attachments = {
+            '123': 'https://site/path/image123.jpg',
+            '456': 'https://site/path/image456.jpg',
+            '1234': 'https://site/path/image1234.jpg',
+        }
+        post = next(wp.posts(source, [wp.GalleryFilter(attachments)]))
 
         assert post.attachment_ids == set(
             [inline_image_id] + gallery_image_ids

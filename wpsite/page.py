@@ -1,6 +1,5 @@
 import dataclasses
 import html.parser
-import re
 import typing
 
 import markdownify  # type: ignore
@@ -37,29 +36,20 @@ class Page:
         default_factory=list
     )
 
-    gallery_pattern = re.compile(r'\[gallery ids="([0-9,]+)[^]]+\]')
-
-    def markdown(self) -> str:
+    @property
+    def filtered_html(self) -> str:
         html = self.content
         for func in self.filters:
             html = func(html)
-        return markdownify.markdownify(html)
+        return html
 
     @property
-    def inline_image_ids(self) -> set[str]:
-        parser = ContentParser()
-        parser.feed(self.content)
-        parser.close()
-        return set(parser.attachment_ids)
-
-    @property
-    def gallery_image_ids(self) -> set[str]:
-        attachment_ids = set()
-        for id_list in re.findall(self.gallery_pattern, self.content):
-            for attachment_id in id_list.split(','):
-                attachment_ids.add(attachment_id)
-        return attachment_ids
+    def markdown(self) -> str:
+        return markdownify.markdownify(self.filtered_html)
 
     @property
     def attachment_ids(self) -> set[str]:
-        return self.inline_image_ids.union(self.gallery_image_ids)
+        parser = ContentParser()
+        parser.feed(self.filtered_html)
+        parser.close()
+        return set(parser.attachment_ids)

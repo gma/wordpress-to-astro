@@ -35,7 +35,7 @@ pubDate: {self.post.pubDate}
 
         text += f"""
 ---
-{self.post.markdown()}
+{self.post.markdown}
 """
         with self.markdown_filename.open('w') as file:
             file.write(text)
