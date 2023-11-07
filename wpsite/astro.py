@@ -17,11 +17,11 @@ class PostDirectory:
         return '"' + text.replace('"', '\\"') + '"'
 
     @property
-    def filename(self) -> Path:
+    def markdown_filename(self) -> Path:
         return (self.path / 'index').with_suffix('.md')
 
     def create_post_dir(self) -> None:
-        self.filename.parent.mkdir(exist_ok=True, parents=True)
+        self.markdown_filename.parent.mkdir(exist_ok=True, parents=True)
 
     def create_markdown(self) -> None:
         self.create_post_dir()
@@ -37,7 +37,7 @@ pubDate: {self.post.pubDate}
 ---
 {self.post.content}
 """
-        with self.filename.open('w') as file:
+        with self.markdown_filename.open('w') as file:
             file.write(text)
 
     def fetch_attachments(self, urls: dict[str, str]) -> None:
