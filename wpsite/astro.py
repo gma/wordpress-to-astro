@@ -51,7 +51,11 @@ pubDate: {self.post.pubDate}
                     f'Attachment missing from export: {attachment_id}'
                 )
             else:
-                logging.info(f'Downloading {url}')
                 basename = PurePath(urllib.parse.urlparse(url).path).name
-                with open(self.path / basename, 'wb') as f:
-                    f.write(urllib.request.urlopen(url).read())
+                image_file = self.path / basename
+                if image_file.exists():
+                    logging.debug(f'Skipping {url} (file exists)')
+                else:
+                    logging.info(f'Downloading {url}')
+                    with open(image_file, 'wb') as f:
+                        f.write(urllib.request.urlopen(url).read())
