@@ -2,6 +2,8 @@ import dataclasses
 import html.parser
 import re
 
+import markdownify  # type: ignore
+
 
 class ContentParser(html.parser.HTMLParser):
     def __init__(self) -> None:
@@ -30,6 +32,10 @@ class Page:
     pubDate: str
     tags: list[str]
     content: str
+
+    @property
+    def markdown(self) -> str:
+        return markdownify.markdownify(self.content)
 
     @property
     def inline_image_ids(self) -> set[str]:
