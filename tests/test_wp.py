@@ -107,3 +107,40 @@ class TestPosts:
         assert post.attachment_ids == set(
             [inline_image_id] + gallery_image_ids
         )
+
+
+class TestGalleryFilter:
+    def img_tag(self, image_id: str, urls: dict[str, str]) -> str:
+        url = urls[image_id]
+        return f'<img class="wp-image-{image_id}" src="{url}">'
+
+    def test_converts_image_galleries_to_html_image_tags(self) -> None:
+        image_1 = '123'
+        image_2 = '456'
+        urls = {
+            image_1: 'https://sitename.files.wordpress.com/2000/01/image1.jpg',
+            image_2: 'https://sitename.files.wordpress.com/2000/01/image2.jpg',
+        }
+
+        gallery_filter = wp.GalleryFilter(urls)
+        html = gallery_filter(
+            f'[gallery ids="{image_1},{image_2}" type="rectangular"]'
+        )
+
+        tag_1 = self.img_tag(image_1, urls)
+        tag_2 = self.img_tag(image_2, urls)
+        assert '\n\n'.join((tag_1, tag_2)) == html
+
+    def test_ignore_gallery_images_not_included_in_export(self) -> None:
+        exported = '123'
+        not_exported = '456'
+        urls = {
+            exported: 'https://sitename.files.wordpress.com/2000/01/image1.jpg'
+        }
+
+        gallery_filter = wp.GalleryFilter(urls)
+        html = gallery_filter(
+            f'[gallery ids="{exported},{not_exported}" type="square"]'
+        )
+
+        assert self.img_tag(exported, urls) == html

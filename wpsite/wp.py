@@ -1,4 +1,5 @@
 import io
+import re
 import xml.etree.ElementTree as ElementTree
 
 from typing import Generator
@@ -62,3 +63,25 @@ def attachments_by_id(source: io.TextIOBase) -> dict[str, str]:
         the_id = text_of(element, 'wp:post_id')
         urls[the_id] = text_of(element, 'wp:attachment_url')
     return urls
+
+
+class GalleryFilter:
+    gallery_pattern = re.compile(r'\[gallery ids="([0-9,]+)[^]]+\]')
+
+    def __init__(self, attachment_urls: dict[str, str]) -> None:
+        self.urls = attachment_urls
+
+    def __call__(self, text: str) -> str:
+        return re.sub(self.gallery_pattern, self.image_markup, text)
+
+    def image_markup(self, match: re.Match) -> str:
+        tags = []
+        for attachment_id in match.group(1).split(','):
+            try:
+                url = self.urls[attachment_id]
+            except KeyError:
+                pass
+            else:
+                tag = f'<img class="wp-image-{attachment_id}" src="{url}">'
+                tags.append(tag)
+        return '\n\n'.join(tags)

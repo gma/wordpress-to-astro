@@ -47,7 +47,7 @@ def test_markdown_files_are_created(tmp_path: Path, post: page.Page) -> None:
     content_dir = tmp_path / 'content'
 
     post_dir = astro.PostDirectory(content_dir, post)
-    post_dir.create_markdown({})
+    post_dir.create_markdown([])
 
     filename = (content_dir / post.slug / 'index').with_suffix('.md')
     assert filename.is_file()
@@ -63,7 +63,7 @@ def test_yaml_frontmatter_is_included(tmp_path: Path, post: page.Page) -> None:
     content_dir = tmp_path / 'content'
 
     post_dir = astro.PostDirectory(content_dir, post)
-    post_dir.create_markdown({})
+    post_dir.create_markdown([])
 
     text = markdown_file_text(content_dir, post)
     assert '---\n' in text
@@ -74,7 +74,7 @@ def test_tags_omitted_by_default(tmp_path: Path, post: page.Page) -> None:
     content_dir = tmp_path / 'content'
 
     post_dir = astro.PostDirectory(content_dir, post)
-    post_dir.create_markdown({})
+    post_dir.create_markdown([])
 
     text = markdown_file_text(content_dir, post)
     assert 'tags:' not in text
@@ -84,7 +84,7 @@ def test_tags_listed_when_set(tmp_path: Path, tagged_post: page.Page) -> None:
     content_dir = tmp_path / 'content'
 
     post_dir = astro.PostDirectory(content_dir, tagged_post)
-    post_dir.create_markdown({})
+    post_dir.create_markdown([])
 
     text = markdown_file_text(content_dir, tagged_post)
     tag_yaml = """tags:
@@ -98,7 +98,7 @@ def test_yaml_syntax_is_escaped(tmp_path: Path, post: page.Page) -> None:
     post.title = '"A quote"'
 
     post_dir = astro.PostDirectory(content_dir, post)
-    post_dir.create_markdown({})
+    post_dir.create_markdown([])
 
     assert 'title: "\\"A quote\\""' in markdown_file_text(content_dir, post)
 
@@ -107,7 +107,7 @@ def test_post_content_is_included(tmp_path: Path, post: page.Page) -> None:
     content_dir = tmp_path / 'content'
 
     post_dir = astro.PostDirectory(content_dir, post)
-    post_dir.create_markdown({})
+    post_dir.create_markdown([])
 
     text = markdown_file_text(content_dir, post)
     assert 'The post' in text

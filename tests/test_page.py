@@ -28,38 +28,11 @@ class TestPage:
 """
 
         post = page.Page('Title', 'slug', '2023-10-30', [], content)
-        markdown = post.markdown({})
+        markdown = post.markdown([])
 
         assert 'wp:paragraph' not in markdown
         assert '\n\nThis is an example' in markdown
         assert '![Alt text](https://' in markdown
-
-    def test_converts_image_galleries_to_markdown_image_syntax(self) -> None:
-        image_1 = '123'
-        image_2 = '456'
-        urls = {
-            image_1: 'https://sitename.files.wordpress.com/2000/01/image1.jpg',
-            image_2: 'https://sitename.files.wordpress.com/2000/01/image2.jpg',
-        }
-        content = f'[gallery ids="{image_1},{image_2}" type="rectangular"]'
-
-        post = page.Page('Title', 'slug', '2023-10-30', [], content)
-        markdown = post.markdown(urls)
-
-        assert markdown == '![](./image1.jpg)\n\n![](./image2.jpg)'
-
-    def test_ignore_gallery_images_not_included_in_export(self) -> None:
-        exported = '123'
-        not_exported = '456'
-        urls = {
-            exported: 'https://sitename.files.wordpress.com/2000/01/image1.jpg'
-        }
-        content = f'[gallery ids="{exported},{not_exported}" type="square"]'
-
-        post = page.Page('Title', 'slug', '2023-10-30', [], content)
-        markdown = post.markdown(urls)
-
-        assert markdown == '![](./image1.jpg)'
 
     def test_finds_ids_of_inline_images(self) -> None:
         image_id = '1234'
