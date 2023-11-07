@@ -1,7 +1,6 @@
 import logging
 import urllib.parse
 import urllib.request
-import typing
 
 from pathlib import Path, PurePath
 
@@ -24,7 +23,7 @@ class PostDirectory:
     def create_post_dir(self) -> None:
         self.markdown_filename.parent.mkdir(exist_ok=True, parents=True)
 
-    def create_markdown(self, filters: list[typing.Callable]) -> None:
+    def create_markdown(self) -> None:
         self.create_post_dir()
 
         text = f"""---
@@ -36,7 +35,7 @@ pubDate: {self.post.pubDate}
 
         text += f"""
 ---
-{self.post.markdown(filters)}
+{self.post.markdown()}
 """
         with self.markdown_filename.open('w') as file:
             file.write(text)

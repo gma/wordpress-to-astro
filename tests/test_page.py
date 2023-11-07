@@ -28,7 +28,7 @@ class TestPage:
 """
 
         post = page.Page('Title', 'slug', '2023-10-30', [], content)
-        markdown = post.markdown([])
+        markdown = post.markdown()
 
         assert 'wp:paragraph' not in markdown
         assert '\n\nThis is an example' in markdown

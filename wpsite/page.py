@@ -33,12 +33,15 @@ class Page:
     pubDate: str
     tags: list[str]
     content: str
+    filters: list[typing.Callable[[str], str]] = dataclasses.field(
+        default_factory=list
+    )
 
     gallery_pattern = re.compile(r'\[gallery ids="([0-9,]+)[^]]+\]')
 
-    def markdown(self, filters: list[typing.Callable]) -> str:
+    def markdown(self) -> str:
         html = self.content
-        for func in filters:
+        for func in self.filters:
             html = func(html)
         return markdownify.markdownify(html)
 

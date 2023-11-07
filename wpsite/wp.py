@@ -2,7 +2,7 @@ import io
 import re
 import xml.etree.ElementTree as ElementTree
 
-from typing import Generator
+from typing import Callable, Generator
 
 from .page import Page
 
@@ -49,11 +49,13 @@ def items_of_type(
                 yield element
 
 
-def posts(source: io.TextIOBase) -> Generator[Page, None, None]:
+def posts(
+    source: io.TextIOBase, filters: list[Callable[[str], str]] = []
+) -> Generator[Page, None, None]:
     source.seek(0)
     for element in items_of_type(source, 'post'):
         if text_of(element, 'wp:status') == 'publish':
-            yield Page(**parse_post(element))
+            yield Page(filters=filters, **parse_post(element))
 
 
 def attachments_by_id(source: io.TextIOBase) -> dict[str, str]:
