@@ -11,5 +11,5 @@ def convert_to_markdown(xml_file: Path, content_dir: Path) -> None:
         attachment_urls = wp.attachments_by_id(file)
         for post in wp.posts(file):
             post_dir = astro.PostDirectory(content_dir, post)
-            post_dir.create_markdown()
+            post_dir.create_markdown(attachment_urls)
             post_dir.fetch_attachments(attachment_urls)

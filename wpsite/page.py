@@ -1,6 +1,8 @@
 import dataclasses
 import html.parser
+import pathlib
 import re
+import urllib.parse
 
 import markdownify  # type: ignore
 
@@ -33,9 +35,24 @@ class Page:
     tags: list[str]
     content: str
 
-    @property
-    def markdown(self) -> str:
-        return markdownify.markdownify(self.content)
+    gallery_pattern = re.compile(r'\[gallery ids="([0-9,]+)[^]]+\]')
+
+    def markdown(self, urls: dict[str, str]) -> str:
+        def image_markup(match: re.Match) -> str:
+            images = []
+            for attachment_id in match.group(1).split(','):
+                try:
+                    url = urls[attachment_id]
+                except KeyError:
+                    pass
+                else:
+                    path = urllib.parse.urlparse(url).path
+                    basename = pathlib.PurePath(path).name
+                    images.append(f'![](./{basename})')
+            return '\n\n'.join(images)
+
+        markdown = markdownify.markdownify(self.content)
+        return re.sub(self.gallery_pattern, image_markup, markdown)
 
     @property
     def inline_image_ids(self) -> set[str]:
@@ -47,7 +64,7 @@ class Page:
     @property
     def gallery_image_ids(self) -> set[str]:
         attachment_ids = set()
-        for id_list in re.findall(r'\[gallery ids="([0-9,]+)', self.content):
+        for id_list in re.findall(self.gallery_pattern, self.content):
             for attachment_id in id_list.split(','):
                 attachment_ids.add(attachment_id)
         return attachment_ids

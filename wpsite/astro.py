@@ -23,7 +23,7 @@ class PostDirectory:
     def create_post_dir(self) -> None:
         self.markdown_filename.parent.mkdir(exist_ok=True, parents=True)
 
-    def create_markdown(self) -> None:
+    def create_markdown(self, attachment_urls: dict[str, str]) -> None:
         self.create_post_dir()
 
         text = f"""---
@@ -35,17 +35,17 @@ pubDate: {self.post.pubDate}
 
         text += f"""
 ---
-{self.post.content}
+{self.post.markdown(attachment_urls)}
 """
         with self.markdown_filename.open('w') as file:
             file.write(text)
 
-    def fetch_attachments(self, urls: dict[str, str]) -> None:
+    def fetch_attachments(self, attachment_urls: dict[str, str]) -> None:
         self.create_post_dir()
         logging.info(f'Fetching attachments for {self.post.slug}')
         for attachment_id in self.post.attachment_ids:
             try:
-                url = urls[attachment_id]
+                url = attachment_urls[attachment_id]
             except KeyError:
                 logging.warning(
                     f'Attachment missing from export: {attachment_id}'
