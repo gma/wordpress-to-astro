@@ -2,6 +2,8 @@ import dataclasses
 import html.parser
 import typing
 
+from functools import reduce
+
 import markdownify  # type: ignore
 
 
@@ -38,10 +40,7 @@ class Page:
 
     @property
     def filtered_html(self) -> str:
-        html = self.content
-        for func in self.filters:
-            html = func(html)
-        return html
+        return reduce(lambda html, f: f(html), self.filters, self.content)
 
     @property
     def markdown(self) -> str:
