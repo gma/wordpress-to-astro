@@ -50,8 +50,6 @@ pubDate: {self.post.pubDate}
                 logging.warn(f"Can't find attachment {attachment_id}")
             else:
                 logging.info(f'Downloading {url}')
-                response = urllib.request.urlopen(url)
-                data = response.read()
                 basename = PurePath(urllib.parse.urlparse(url).path).name
                 with open(self.path / basename, 'wb') as f:
-                    f.write(data)
+                    f.write(urllib.request.urlopen(url).read())
