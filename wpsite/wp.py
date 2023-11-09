@@ -67,6 +67,23 @@ def attachments_by_id(source: io.TextIOBase) -> dict[str, str]:
     return urls
 
 
+class DeSpanFilter:
+    """Tidy up WordPress paragraphs for markdownify
+
+    markdownify treats `<span>Para</span>` on a line that's separated
+    from surrounding text via blank lines as part of the same paragraph as the
+    next block of text. We use this filter to remove WordPress's unnecessary
+    spans before generating the Markdown.
+
+    """
+
+    span_start = re.compile(r'^<span[^>]*?>', flags=re.MULTILINE)
+    span_end = re.compile(r'</span>$', flags=re.MULTILINE)
+
+    def __call__(self, text: str) -> str:
+        return self.span_start.sub('', self.span_end.sub('', text))
+
+
 class GalleryFilter:
     gallery_pattern = re.compile(r'\[gallery ids="([0-9,]+)[^]]+\]')
 

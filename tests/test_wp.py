@@ -114,6 +114,24 @@ class TestPosts:
         )
 
 
+class TestDeSpanFilter:
+    def test_removes_span_tags_around_paragraph(self) -> None:
+        content = """Paragraph 1
+
+<span>Paragraph 2</span>
+
+<img alt="Alt text" src="https://sitename.files.wordpress.com/2000/01/image.jpg" alt="Alt text" width="4160" height="3120" />
+
+<span>Paragraph 3</span>
+"""
+
+        text = wp.DeSpanFilter()(content)
+
+        assert 'Paragraph 1\n\nParagraph 2' in text
+        assert 'Paragraph 2\n\n<img' in text
+        assert 'height="3120" />\n\nParagraph 3' in text
+
+
 class TestGalleryFilter:
     def img_tag(self, image_id: str, urls: dict[str, str]) -> str:
         url = urls[image_id]
