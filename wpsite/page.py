@@ -44,7 +44,9 @@ class Page:
 
     @property
     def markdown(self) -> str:
-        return markdownify.markdownify(self.filtered_html)
+        return markdownify.markdownify(
+            self.filtered_html, heading_style=markdownify.ATX
+        )
 
     @property
     def attachment_ids(self) -> set[str]:
