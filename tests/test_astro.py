@@ -130,3 +130,16 @@ def test_attachments_fetched(
 
     mock_urlopen.assert_called_with(url)
     assert (post_dir.path / photo_filename).read_bytes() == photo_bytes
+
+
+class TestHostedImageFilter:
+    def test_replaces_wordpress_url_with_relative_path(self) -> None:
+        image_id = '1234'
+        basename = 'image.jpg'
+        url = f'https://sitename.files.wordpress.com/{basename}'
+        urls = {image_id: url}
+        content = f'<img class="wp-image-{image_id}" src="{url}">'
+
+        text = astro.HostedImageFilter(urls)(content)
+
+        assert text == f'<img class="wp-image-{image_id}" src="./{basename}">'

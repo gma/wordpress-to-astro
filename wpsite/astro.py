@@ -4,7 +4,7 @@ import urllib.request
 
 from pathlib import Path, PurePath
 
-from .page import Page
+from .page import AttachmentParser, Page
 
 
 class PostDirectory:
@@ -64,3 +64,24 @@ pubDate: {self.post.pubDate}
                 )
             else:
                 self.save_image(url)
+
+
+class HostedImageFilter:
+    def __init__(self, attachment_urls: dict[str, str]) -> None:
+        self.attachment_urls = attachment_urls
+
+    def __call__(self, text: str) -> str:
+        self.text = text
+        parser = AttachmentParser(self.replace_url)
+        parser.feed(text)
+        parser.close()
+        return self.text
+
+    def replace_url(self, attachment_id: str) -> None:
+        try:
+            url = self.attachment_urls[attachment_id]
+        except KeyError:
+            logging.warning(f'Attachment missing from export: {attachment_id}')
+        else:
+            basename = PurePath(urllib.parse.urlparse(url).path).name
+            self.text = self.text.replace(url, f'./{basename}')
