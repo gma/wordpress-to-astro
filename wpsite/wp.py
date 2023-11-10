@@ -84,6 +84,23 @@ class DeSpanFilter:
         return self.span_start.sub('', self.span_end.sub('', text))
 
 
+class IllustratedParagraphFilter:
+    """Insert line break after image at start of paragraph
+
+    WordPress's editor makes it easy for people to create paragraphs that start
+    with an image that then immediately run straight into some text, without
+    any whitespace. In general I don't feel that the image is intended to be
+    part of the paragraph that follows. This filter inserts a line break
+    between them.
+
+    """
+
+    leading_image = re.compile(r'^(<img[^>]+>)([^\s])', flags=re.MULTILINE)
+
+    def __call__(self, text: str) -> str:
+        return self.leading_image.sub(r'\1\n\n\2', text)
+
+
 class GalleryFilter:
     gallery_pattern = re.compile(r'\[gallery ids="([0-9,]+)[^]]+\]')
 

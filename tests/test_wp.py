@@ -132,6 +132,33 @@ class TestDeSpanFilter:
         assert 'height="3120" />\n\nParagraph 3' in text
 
 
+class TestIllustratedParagraphFilter:
+    def test_ignores_images_followed_by_a_space(self) -> None:
+        content = """
+<img src="https://sitename.files.wordpress.com/image.jpg"> Paragraph text
+"""
+
+        text = wp.IllustratedParagraphFilter()(content)
+
+        assert '/image.jpg"> Paragraph text' in text
+
+    def test_ignores_inline_images(self) -> None:
+        content = 'Inline <img src="image.jpg">is fine'
+
+        text = wp.IllustratedParagraphFilter()(content)
+
+        assert text == content
+
+    def test_inserts_line_after_image_at_start_of_line(self) -> None:
+        content = """
+<img src="https://sitename.files.wordpress.com/image.jpg">Paragraph text
+"""
+
+        text = wp.IllustratedParagraphFilter()(content)
+
+        assert '/image.jpg">\n\nParagraph text' in text
+
+
 class TestGalleryFilter:
     def img_tag(self, image_id: str, urls: dict[str, str]) -> str:
         url = urls[image_id]
