@@ -1,3 +1,5 @@
+import unittest.mock
+
 from .context import page
 
 
@@ -8,11 +10,13 @@ class TestAttachmentParser:
 <img class="alignnone size-full wp-image-{image_id}" src="https://sitename.files.wordpress.com/2000/01/image.jpg" alt="Alt text" width="4160" height="3120" />Paragraph content follows immediately!
 """
 
-        parser = page.AttachmentParser()
+        callback = unittest.mock.Mock()
+
+        parser = page.AttachmentParser(callback)
         parser.feed(content)
         parser.close()
 
-        assert parser.attachment_ids == set([image_id])
+        callback.assert_called_with(image_id)
 
 
 class TestPage:

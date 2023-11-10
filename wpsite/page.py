@@ -8,14 +8,14 @@ import markdownify  # type: ignore
 
 
 class AttachmentParser(html.parser.HTMLParser):
-    def __init__(self) -> None:
+    def __init__(self, callback: typing.Callable) -> None:
         super().__init__()
-        self.attachment_ids: set[str] = set()
+        self.callback = callback
 
     def _record_attachment_id(self, classes: str) -> None:
         for html_class in classes.split():
             if html_class.startswith('wp-image-'):
-                self.attachment_ids.add(html_class.rsplit('-', 1)[-1])
+                self.callback(html_class.rsplit('-', 1)[-1])
 
     def handle_starttag(
         self, tag: str, attrs: list[tuple[str, str | None]]
@@ -48,7 +48,8 @@ class Page:
 
     @property
     def attachment_ids(self) -> set[str]:
-        parser = AttachmentParser()
+        ids = set()
+        parser = AttachmentParser(lambda attachment_id: ids.add(attachment_id))
         parser.feed(self.filtered_html)
         parser.close()
-        return set(parser.attachment_ids)
+        return ids
