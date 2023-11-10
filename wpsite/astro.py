@@ -40,6 +40,18 @@ pubDate: {self.post.pubDate}
         with self.markdown_filename.open('w') as file:
             file.write(text)
 
+    def attachment_basename(self, url: str) -> str:
+        return PurePath(urllib.parse.urlparse(url).path).name
+
+    def save_image(self, url: str) -> None:
+        image_file = self.path / self.attachment_basename(url)
+        if image_file.exists():
+            logging.debug(f'Skipping {url} (file exists)')
+        else:
+            logging.info(f'Downloading {url}')
+            with open(image_file, 'wb') as f:
+                f.write(urllib.request.urlopen(url).read())
+
     def fetch_attachments(self, attachment_urls: dict[str, str]) -> None:
         self.create_post_dir()
         logging.info(f'Fetching attachments for {self.post.slug}')
@@ -51,11 +63,4 @@ pubDate: {self.post.pubDate}
                     f'Attachment missing from export: {attachment_id}'
                 )
             else:
-                basename = PurePath(urllib.parse.urlparse(url).path).name
-                image_file = self.path / basename
-                if image_file.exists():
-                    logging.debug(f'Skipping {url} (file exists)')
-                else:
-                    logging.info(f'Downloading {url}')
-                    with open(image_file, 'wb') as f:
-                        f.write(urllib.request.urlopen(url).read())
+                self.save_image(url)
