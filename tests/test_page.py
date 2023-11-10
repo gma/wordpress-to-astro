@@ -1,14 +1,14 @@
 from .context import page
 
 
-class TestContentParser:
+class TestAttachmentParser:
     def test_records_ids_of_images_with_wp_image_class(self) -> None:
         image_id = '1234'
         content = f"""
 <img class="alignnone size-full wp-image-{image_id}" src="https://sitename.files.wordpress.com/2000/01/image.jpg" alt="Alt text" width="4160" height="3120" />Paragraph content follows immediately!
 """
 
-        parser = page.ContentParser()
+        parser = page.AttachmentParser()
         parser.feed(content)
         parser.close()
 

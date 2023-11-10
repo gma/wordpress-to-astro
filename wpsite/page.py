@@ -7,7 +7,7 @@ from functools import reduce
 import markdownify  # type: ignore
 
 
-class ContentParser(html.parser.HTMLParser):
+class AttachmentParser(html.parser.HTMLParser):
     def __init__(self) -> None:
         super().__init__()
         self.attachment_ids: set[str] = set()
@@ -48,7 +48,7 @@ class Page:
 
     @property
     def attachment_ids(self) -> set[str]:
-        parser = ContentParser()
+        parser = AttachmentParser()
         parser.feed(self.filtered_html)
         parser.close()
         return set(parser.attachment_ids)
