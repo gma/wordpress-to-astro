@@ -1,4 +1,5 @@
 import logging
+import re
 import urllib.parse
 import urllib.request
 
@@ -84,4 +85,4 @@ class HostedImageFilter:
             logging.warning(f'Attachment missing from export: {attachment_id}')
         else:
             basename = PurePath(urllib.parse.urlparse(url).path).name
-            self.text = self.text.replace(url, f'./{basename}')
+            self.text = re.sub(rf'{url}(\?[^"]+)?', f'./{basename}', self.text)
