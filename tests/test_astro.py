@@ -144,6 +144,17 @@ class TestHostedImageFilter:
 
         assert text == f'<img class="wp-image-{image_id}" src="./{basename}">'
 
+    def test_replaces_urls_that_dont_use_ssl(self) -> None:
+        image_id = '1234'
+        basename = 'image.jpg'
+        url = f'sitename.files.wordpress.com/{basename}'
+        urls = {image_id: f'https://{url}'}
+        content = f'<img class="wp-image-{image_id}" src="http://{url}">'
+
+        text = astro.HostedImageFilter(urls)(content)
+
+        assert text == f'<img class="wp-image-{image_id}" src="./{basename}">'
+
     def test_strips_image_size_parameters_from_query_string(self) -> None:
         image_id = '1234'
         basename = 'image.jpg'

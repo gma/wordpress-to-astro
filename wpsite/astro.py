@@ -85,4 +85,7 @@ class HostedImageFilter:
             logging.warning(f'Attachment missing from export: {attachment_id}')
         else:
             basename = PurePath(urllib.parse.urlparse(url).path).name
-            self.text = re.sub(rf'{url}(\?[^"]+)?', f'./{basename}', self.text)
+            multiprotocol_url = url.replace('https://', 'https?://')
+            self.text = re.sub(
+                rf'{multiprotocol_url}(\?[^"]+)?', f'./{basename}', self.text
+            )
