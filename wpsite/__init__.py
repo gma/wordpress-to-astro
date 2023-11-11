@@ -13,6 +13,7 @@ def convert_to_markdown(xml_file: Path, content_dir: Path) -> None:
             file,
             [
                 wp.DeSpanFilter(),
+                wp.RemoveImageLinksFilter(),
                 wp.IllustratedParagraphFilter(),
                 wp.GalleryFilter(attachment_urls),
                 astro.HostedImageFilter(attachment_urls),

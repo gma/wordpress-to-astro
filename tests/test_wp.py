@@ -132,6 +132,17 @@ class TestDeSpanFilter:
         assert 'height="3120" />\n\nParagraph 3' in text
 
 
+class TestRemoveImageLinksFilter:
+    def test_links_to_displayed_image_are_removed(self) -> None:
+        image_url = 'http://sitename.files.wordpress.com/image.jpg'
+        image_tag = f'<img class="wp-image-1234 alignnone size-full" src="{image_url}" alt="" />'
+        content = f'<a href="{image_url}">{image_tag}</a>'
+
+        text = wp.RemoveImageLinksFilter()(content)
+
+        assert text == image_tag
+
+
 class TestIllustratedParagraphFilter:
     def test_ignores_images_followed_by_a_space(self) -> None:
         content = """

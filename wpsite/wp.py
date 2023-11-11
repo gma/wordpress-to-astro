@@ -84,6 +84,24 @@ class DeSpanFilter:
         return self.span_start.sub('', self.span_end.sub('', text))
 
 
+class RemoveImageLinksFilter:
+    """Remove links that navigate to wrapped image
+
+    Some of the pages in a site I'm moving off WordPress contain <a> tags that
+    wrap <img> tags. That's no problem in itself, but the href attribute of these
+    <a> tags are set to the image that's displayed inside the link. At least
+    for this site, that's pointless.
+
+    """
+
+    linked_image = re.compile(
+        r'<a[^>]+\bhref="([^"]+)[^>]*?>(<img[^>]+\bsrc="\1"[^>]*?>)</a>'
+    )
+
+    def __call__(self, text: str) -> str:
+        return self.linked_image.sub(r'\2', text)
+
+
 class IllustratedParagraphFilter:
     """Insert line break after image at start of paragraph
 
