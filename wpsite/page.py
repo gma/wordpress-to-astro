@@ -34,6 +34,7 @@ class Page:
     pubDate: str
     tags: list[str]
     content: str
+    thumbnail: str = ''
     filters: list[typing.Callable[[str], str]] = dataclasses.field(
         default_factory=list
     )

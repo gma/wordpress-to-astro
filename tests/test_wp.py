@@ -28,6 +28,7 @@ def attachment_data() -> str:
 
 inline_image_id = '1234'
 gallery_image_ids = ['123', '456']
+thumbnail_id = '789'
 
 
 @pytest.fixture
@@ -43,6 +44,14 @@ def post_data() -> str:
   <category domain="post_tag" nicename="tag-1"><![CDATA[tag 1]]></category>
   <category domain="post_tag" nicename="tag-2"><![CDATA[tag 2]]></category>
   <category domain="category" nicename="uncategorized"><![CDATA[Uncategorized]]></category>
+  <wp:postmeta>
+    <wp:meta_key>_thumbnail_id</wp:meta_key>
+    <wp:meta_value><![CDATA[{thumbnail_id}]]></wp:meta_value>
+  </wp:postmeta>
+  <wp:postmeta>
+    <wp:meta_key>_irrelevant_key</wp:meta_key>
+    <wp:meta_value><![CDATA[irrelevant value]]></wp:meta_value>
+  </wp:postmeta>
   <content:encoded><![CDATA[
 <span style="font-weight:400;">Example from an early sample post.</span>
 
@@ -90,6 +99,16 @@ class TestPosts:
         post = next(wp.posts(source))
 
         assert post.tags == ['tag-1', 'tag-2']
+
+    def test_post_knows_thumbnail_attachment_id(self, post_data: str) -> None:
+        source = io.StringIO(rss_doc(post_data))
+        url = 'https://site/path/image.jpg'
+        attachments = {thumbnail_id: url}
+        parser = wp.thumbnail_parser(attachments)
+
+        post = next(wp.posts(source, [], [parser]))
+
+        assert post.thumbnail == url
 
     def test_post_knows_its_html_content(self, post_data: str) -> None:
         source = io.StringIO(rss_doc(post_data))

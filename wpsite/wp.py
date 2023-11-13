@@ -1,7 +1,9 @@
 import io
+import logging
 import re
 import xml.etree.ElementTree as ElementTree
 
+from functools import reduce
 from typing import Callable, Generator
 
 from .page import Page
@@ -30,14 +32,40 @@ def parse_tags(element: ElementTree.Element) -> list[str]:
     return list(tags(element))
 
 
-def parse_post(element: ElementTree.Element) -> dict:
-    return {
+def parse_metadata(element: ElementTree.Element, key: str) -> str:
+    path = f'wp:postmeta/wp:meta_key[.="{key}"]/.../wp:meta_value'
+    meta_value = element.find(path, namespaces)
+    if meta_value is not None and meta_value.text:
+        return meta_value.text
+    raise RuntimeError(f"Couldn't find <wp:meta_value> for key {key}")
+
+
+def thumbnail_parser(attachments: dict[str, str]) -> Callable:
+    def parser(element: ElementTree.Element) -> dict[str, str]:
+        try:
+            thumbnail_id = parse_metadata(element, '_thumbnail_id')
+        except RuntimeError as e:
+            logging.warning(str(e))
+            return {}
+        else:
+            return {'thumbnail': attachments[thumbnail_id]}
+
+    return parser
+
+
+def parse_post(
+    element: ElementTree.Element, parsers: list[Callable] = []
+) -> dict:
+    defaults = {
         'title': text_of(element, 'title'),
         'slug': text_of(element, 'wp:post_name'),
         'pubDate': text_of(element, 'wp:post_date_gmt'),
         'tags': parse_tags(element),
         'content': text_of(element, 'content:encoded'),
     }
+    return reduce(
+        lambda d, parser: {**d, **parser(element)}, parsers, defaults
+    )
 
 
 def items_of_type(
@@ -50,12 +78,14 @@ def items_of_type(
 
 
 def posts(
-    source: io.TextIOBase, filters: list[Callable[[str], str]] = []
+    source: io.TextIOBase,
+    filters: list[Callable[[str], str]] = [],
+    parsers: list[Callable[[ElementTree.Element], dict[str, str]]] = [],
 ) -> Generator[Page, None, None]:
     source.seek(0)
     for element in items_of_type(source, 'post'):
         if text_of(element, 'wp:status') == 'publish':
-            yield Page(filters=filters, **parse_post(element))
+            yield Page(filters=filters, **parse_post(element, parsers))
 
 
 def attachments_by_id(source: io.TextIOBase) -> dict[str, str]:

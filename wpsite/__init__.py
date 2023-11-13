@@ -18,6 +18,7 @@ def convert_to_markdown(xml_file: Path, content_dir: Path) -> None:
                 wp.GalleryFilter(attachments),
                 astro.HostedImageFilter(attachments),
             ],
+            [wp.thumbnail_parser(attachments)],
         ):
             post_dir = astro.PostDirectory(content_dir, post)
             post_dir.create_markdown()

@@ -8,6 +8,10 @@ from pathlib import Path, PurePath
 from .page import AttachmentParser, Page
 
 
+def attachment_path(url: str) -> str:
+    return f'./{PurePath(urllib.parse.urlparse(url).path).name}'
+
+
 class PostDirectory:
     def __init__(self, content_dir: Path, post: Page) -> None:
         self.content_dir = content_dir
@@ -33,9 +37,11 @@ pubDate: {self.post.pubDate}
 """
         if self.post.tags:
             text += '\n'.join(['tags:'] + [f'  - {t}' for t in self.post.tags])
+            text += '\n'
+        if self.post.thumbnail:
+            text += f'coverImage: {attachment_path(self.post.thumbnail)}\n'
 
-        text += f"""
----
+        text += f"""---
 {self.post.markdown}
 """
         with self.markdown_filename.open('w') as file:
@@ -84,8 +90,9 @@ class HostedImageFilter:
         except KeyError:
             logging.warning(f'Attachment missing from export: {attachment_id}')
         else:
-            basename = PurePath(urllib.parse.urlparse(url).path).name
             multiprotocol_url = url.replace('https://', 'https?://')
             self.text = re.sub(
-                rf'{multiprotocol_url}(\?[^"]+)?', f'./{basename}', self.text
+                rf'{multiprotocol_url}(\?[^"]+)?',
+                attachment_path(url),
+                self.text,
             )

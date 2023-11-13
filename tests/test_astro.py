@@ -103,6 +103,18 @@ def test_yaml_syntax_is_escaped(tmp_path: Path, post: page.Page) -> None:
     assert 'title: "\\"A quote\\""' in markdown_file_text(content_dir, post)
 
 
+def test_thumbnail_included(tmp_path: Path, post: page.Page) -> None:
+    content_dir = tmp_path / 'content'
+    basename = 'image.jpg'
+    url = f'https://site/path/{basename}'
+    post.thumbnail = url
+
+    post_dir = astro.PostDirectory(content_dir, post)
+    post_dir.create_markdown()
+
+    assert f'coverImage: ./{basename}' in markdown_file_text(content_dir, post)
+
+
 def test_post_content_is_included(tmp_path: Path, post: page.Page) -> None:
     content_dir = tmp_path / 'content'
 
