@@ -68,8 +68,8 @@ pubDate: {self.post.pubDate}
 
 
 class HostedImageFilter:
-    def __init__(self, attachment_urls: dict[str, str]) -> None:
-        self.attachment_urls = attachment_urls
+    def __init__(self, attachments: dict[str, str]) -> None:
+        self.attachments = attachments
 
     def __call__(self, text: str) -> str:
         self.text = text
@@ -80,7 +80,7 @@ class HostedImageFilter:
 
     def replace_url(self, attachment_id: str) -> None:
         try:
-            url = self.attachment_urls[attachment_id]
+            url = self.attachments[attachment_id]
         except KeyError:
             logging.warning(f'Attachment missing from export: {attachment_id}')
         else:

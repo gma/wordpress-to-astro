@@ -137,10 +137,10 @@ class TestHostedImageFilter:
         image_id = '1234'
         basename = 'image.jpg'
         url = f'https://sitename.files.wordpress.com/{basename}'
-        urls = {image_id: url}
+        attachments = {image_id: url}
         content = f'<img class="wp-image-{image_id}" src="{url}">'
 
-        text = astro.HostedImageFilter(urls)(content)
+        text = astro.HostedImageFilter(attachments)(content)
 
         assert text == f'<img class="wp-image-{image_id}" src="./{basename}">'
 
