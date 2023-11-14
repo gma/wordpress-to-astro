@@ -96,7 +96,7 @@ class TestPosts:
     def test_post_knows_its_tags(self, post_data: str) -> None:
         source = io.StringIO(rss_doc(post_data))
 
-        post = next(wp.posts(source))
+        post = next(wp.posts(source, [], [wp.tag_parser]))
 
         assert post.tags == ['tag-1', 'tag-2']
 

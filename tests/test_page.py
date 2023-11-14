@@ -31,7 +31,7 @@ class TestPage:
 <!-- /wp:paragraph -->
 """
 
-        post = page.Page('Title', 'slug', '2023-10-30', [], content)
+        post = page.Page('Title', 'slug', '2023-10-30', content)
         markdown = post.markdown
 
         assert 'wp:paragraph' not in markdown
@@ -44,6 +44,6 @@ class TestPage:
 <img class="alignnone size-full wp-image-{image_id}" src="https://sitename.files.wordpress.com/2000/01/image.jpg" alt="Alt text" width="4160" height="3120" />Paragraph content follows immediately!
 """
 
-        post = page.Page('Title', 'slug', '2023-10-30', [], content)
+        post = page.Page('Title', 'slug', '2023-10-30', content)
 
         assert post.attachment_ids == set([image_id])

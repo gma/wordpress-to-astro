@@ -32,8 +32,8 @@ class Page:
     title: str
     slug: str
     pubDate: str
-    tags: list[str]
     content: str
+    tags: list[str] = dataclasses.field(default_factory=list)
     thumbnail: str = ''
     filters: list[typing.Callable[[str], str]] = dataclasses.field(
         default_factory=list

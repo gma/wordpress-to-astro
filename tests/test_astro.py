@@ -14,7 +14,6 @@ def post() -> page.Page:
         title='Title',
         slug='slug',
         pubDate='2023-10-24 15:25:27',
-        tags=[],
         content='The post',
     )
 
@@ -34,7 +33,6 @@ def photo_post() -> page.Page:
         title='Title',
         slug='slug',
         pubDate='2023-10-24 15:25:27',
-        tags=[],
         content=f"""
 Some text with attached image.
 

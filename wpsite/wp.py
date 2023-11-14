@@ -4,7 +4,7 @@ import re
 import xml.etree.ElementTree as ElementTree
 
 from functools import reduce
-from typing import Callable, Generator
+from typing import Any, Callable, Generator
 
 from .page import Page
 
@@ -22,14 +22,14 @@ def text_of(element: ElementTree.Element, tag: str) -> str:
     raise ValueError(f"Couldn't find {tag} beneath {element.tag}")
 
 
-def parse_tags(element: ElementTree.Element) -> list[str]:
+def tag_parser(element: ElementTree.Element) -> dict[str, list[str]]:
     path = 'category[@domain="post_tag"]'
 
     def tags(element: ElementTree.Element) -> Generator[str, None, None]:
         for child in element.iterfind(path, namespaces):
             yield child.attrib['nicename']
 
-    return list(tags(element))
+    return {'tags': list(tags(element))}
 
 
 def parse_metadata(element: ElementTree.Element, key: str) -> str:
@@ -60,8 +60,8 @@ def parse_post(
         'title': text_of(element, 'title'),
         'slug': text_of(element, 'wp:post_name'),
         'pubDate': text_of(element, 'wp:post_date_gmt'),
-        'tags': parse_tags(element),
         'content': text_of(element, 'content:encoded'),
+        'tags': '',
     }
     return reduce(
         lambda d, parser: {**d, **parser(element)}, parsers, defaults
@@ -80,7 +80,7 @@ def items_of_type(
 def posts(
     source: io.TextIOBase,
     filters: list[Callable[[str], str]] = [],
-    parsers: list[Callable[[ElementTree.Element], dict[str, str]]] = [],
+    parsers: list[Callable[[ElementTree.Element], dict[str, Any]]] = [],
 ) -> Generator[Page, None, None]:
     source.seek(0)
     for element in items_of_type(source, 'post'):
