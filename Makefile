@@ -8,7 +8,7 @@ lint:
 
 .PHONY: format
 format:
-	blue --check .
+	ruff format --check .
 
 .PHONY: types
 types:
