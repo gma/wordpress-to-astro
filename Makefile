@@ -3,8 +3,7 @@ check: lint format types
 
 .PHONY: lint
 lint:
-	flake8 . --exclude .venv --count --show-source --statistics \
-		--select=E9,F63,F7,F82
+	ruff check . --select E9,F63,F7,F82 --show-source
 
 .PHONY: format
 format:
