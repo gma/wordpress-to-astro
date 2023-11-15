@@ -62,6 +62,8 @@ pubDate: {self.post.pubDate}
     def fetch_attachments(self, attachment_urls: dict[str, str]) -> None:
         self.create_post_dir()
         logging.info(f'Fetching attachments for {self.post.slug}')
+        if self.post.thumbnail:
+            self.save_image(self.post.thumbnail)
         for attachment_id in self.post.attachment_ids:
             try:
                 url = attachment_urls[attachment_id]

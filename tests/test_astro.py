@@ -126,7 +126,7 @@ def test_post_content_is_included(tmp_path: Path, post: page.Page) -> None:
 
 
 @mock.patch.object(astro.urllib.request, 'urlopen', autospec=True)
-def test_attachments_fetched(
+def test_inline_attachments_fetched(
     mock_urlopen: mock.MagicMock, tmp_path: Path, photo_post: page.Page
 ) -> None:
     content_dir = tmp_path / 'content'
@@ -134,11 +134,29 @@ def test_attachments_fetched(
 
     photo_bytes = b'some pixels'
     mock_urlopen.return_value.read.return_value = photo_bytes
-
     photo_filename = 'image.jpg'
     url = f'https://sitename.files.wordpress.com/{photo_filename}'
 
     post_dir.fetch_attachments({photo_attachment_id: url})
+
+    mock_urlopen.assert_called_with(url)
+    assert (post_dir.path / photo_filename).read_bytes() == photo_bytes
+
+
+@mock.patch.object(astro.urllib.request, 'urlopen', autospec=True)
+def test_thumbnail_attachment_fetched(
+    mock_urlopen: mock.MagicMock, tmp_path: Path, post: page.Page
+) -> None:
+    content_dir = tmp_path / 'content'
+    post_dir = astro.PostDirectory(content_dir, post)
+
+    photo_bytes = b'some pixels'
+    mock_urlopen.return_value.read.return_value = photo_bytes
+    photo_filename = 'image.jpg'
+    url = f'https://sitename.files.wordpress.com/{photo_filename}'
+    post.thumbnail = url
+
+    post_dir.fetch_attachments({'123': url})
 
     mock_urlopen.assert_called_with(url)
     assert (post_dir.path / photo_filename).read_bytes() == photo_bytes
