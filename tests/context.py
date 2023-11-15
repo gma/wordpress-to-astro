@@ -1,10 +1,14 @@
+__all__ = ['astro', 'page', 'wp']
+
 import os
 import sys
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, project_root)
 
-from wpsite import *
+from wpsite import astro  # noqa: E402
+from wpsite import page  # noqa: E402
+from wpsite import wp  # noqa: E402
 
 
 def rss_doc(xml: str) -> str:
