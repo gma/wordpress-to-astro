@@ -40,25 +40,33 @@ top-level of the `wpsite` package. That's really the entry point.
 
 
 from pathlib import Path
+import typing
 
 from . import astro
 from . import wp
 
 
+def filters(attachments: dict[str, str]) -> list[typing.Callable]:
+    return [
+        wp.DeSpanFilter(),
+        wp.RemoveImageLinksFilter(),
+        wp.IllustratedParagraphFilter(),
+        wp.GalleryFilter(attachments),
+        astro.HostedImageFilter(attachments),
+    ]
+
+
+def parsers(attachments: dict[str, str]) -> list[typing.Callable]:
+    return [
+        wp.tag_parser,
+        wp.thumbnail_parser(attachments),
+    ]
+
+
 def convert_to_markdown(xml_file: Path, content_dir: Path) -> None:
     with xml_file.open() as file:
         attachments = wp.attachments_by_id(file)
-        for post in wp.posts(
-            file,
-            [
-                wp.DeSpanFilter(),
-                wp.RemoveImageLinksFilter(),
-                wp.IllustratedParagraphFilter(),
-                wp.GalleryFilter(attachments),
-                astro.HostedImageFilter(attachments),
-            ],
-            [wp.tag_parser, wp.thumbnail_parser(attachments)],
-        ):
+        for post in wp.posts(file, filters(attachments), parsers(attachments)):
             post_dir = astro.PostDirectory(content_dir, post)
             post_dir.create_markdown()
             post_dir.fetch_attachments(attachments)
