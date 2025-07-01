@@ -27,6 +27,10 @@ class TestPage:
 <!-- /wp:paragraph -->
 
 <!-- wp:paragraph -->
+<p>Second paragraph</p>
+<!-- /wp:paragraph -->
+
+<!-- wp:paragraph -->
 <img class="alignnone size-full wp-image-1234" alt="Alt text" src="https://sitename.files.wordpress.com/2000/01/image.jpg" alt="Alt text" width="4160" height="3120" />Paragraph content follows immediately!
 <!-- /wp:paragraph -->
 """
@@ -35,7 +39,8 @@ class TestPage:
         markdown = post.markdown
 
         assert 'wp:paragraph' not in markdown
-        assert '\n\nThis is an example' in markdown
+        assert markdown.startswith('This is an example')
+        assert '\n\nSecond paragraph' in markdown
         assert '![Alt text](https://' in markdown
 
     def test_finds_ids_of_inline_images(self) -> None:
